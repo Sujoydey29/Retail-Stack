@@ -1,0 +1,240 @@
+{% extends 'store/layouts/main.html' %}
+
+{% block title %} Order #{{ order.tracking_no }} {% endblock title %}
+
+{% block content %}
+
+<!-- Internal Styles for Order View Page -->
+<style>
+.order-view-page-container {
+    background-color: #f0f2f5;
+}
+.page-header {
+    background-color: var(--card-bg);
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.page-header .breadcrumb-item a { color: var(--secondary-color); font-weight: 500; text-decoration: none; transition: color 0.2s; }
+.page-header .breadcrumb-item a:hover { color: var(--primary-color); }
+.page-header .breadcrumb-item.active { color: var(--text-color); font-weight: 500; }
+.page-header .page-title { font-size: 2rem; font-weight: 700; color: var(--heading-color); }
+.page-header .btn-back { font-weight: 500; }
+
+/* Detail Cards */
+.detail-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+    height: 100%;
+}
+.detail-card h5 {
+    font-weight: 600;
+    font-size: 1.25rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Shipping Details List */
+.shipping-details-list {
+    list-style: none;
+    padding: 0;
+}
+.shipping-details-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--bg-color);
+}
+.shipping-details-list li:last-child {
+    border-bottom: none;
+}
+.shipping-details-list .label {
+    color: var(--secondary-color);
+}
+.shipping-details-list .value {
+    font-weight: 500;
+    text-align: right;
+}
+
+/* Order Items Table */
+.order-items-table {
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+.order-items-table .order-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.order-items-table .order-item:last-child {
+    border-bottom: none;
+}
+.order-items-table img {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    margin-right: 1rem;
+}
+.order-items-table .item-info {
+    flex-grow: 1;
+}
+.order-items-table .item-info .name {
+    font-weight: 500;
+}
+.order-items-table .item-info .qty {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}
+.order-items-table .item-price {
+    font-weight: 600;
+}
+
+/* Final Summary */
+.order-final-summary {
+    list-style: none;
+    padding: 0;
+}
+.order-final-summary li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+}
+.order-final-summary .label {
+    color: var(--secondary-color);
+}
+.order-final-summary .value {
+    font-weight: 600;
+}
+.order-final-summary .grand-total .label,
+.order-final-summary .grand-total .value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--heading-color);
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-block;
+    padding: 0.4em 0.8em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 50rem;
+    color: #fff;
+}
+.status-badge.status-completed { background-color: #198754; }
+.status-badge.status-pending { background-color: #ffc107; color: #000; }
+.status-badge.status-out-of-shipping { background-color: #0dcaf0; color: #000; }
+.status-badge.status-cancelled { background-color: #dc3545; }
+</style>
+
+<div class="order-view-page-container">
+    <div class="page-header">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 m-0">
+                  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'myorders' %}">My Orders</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Order Details</li>
+                </ol>
+            </nav>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <h1 class="page-title mb-0">Order #{{ order.tracking_no }}</h1>
+                <a href="{% url 'myorders' %}" class="btn btn-outline-secondary btn-back">
+                    <i class="fa fa-chevron-left me-2"></i>Back to Orders
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 mb-4 mb-lg-0">
+                    <div class="detail-card">
+                        <h5>Shipping Details</h5>
+                        <ul class="shipping-details-list">
+                            <li>
+                                <span class="label">Full Name</span>
+                                <span class="value">{{ order.fname }} {{ order.lname }}</span>
+                            </li>
+                             <li>
+                                <span class="label">Email</span>
+                                <span class="value">{{ order.email }}</span>
+                            </li>
+                             <li>
+                                <span class="label">Contact No.</span>
+                                <span class="value">{{ order.phone }}</span>
+                            </li>
+                            <li>
+                                <span class="label">Address</span>
+                                <span class="value">
+                                    {{ order.address }},<br>
+                                    {{ order.city }}, {{ order.state }}<br>
+                                    {{ order.country }} - {{ order.pincode }}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="detail-card">
+                        <h5>Order Summary</h5>
+                        <div class="order-items-table">
+                            {% for item in orderitems %}
+                                <div class="order-item">
+                                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}">
+                                    <div class="item-info">
+                                        <div class="name">{{ item.product.name }}</div>
+                                        <div class="qty">Quantity: {{ item.quantity }}</div>
+                                    </div>
+                                    <div class="item-price">₹{{ item.price|stringformat:"d" }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <hr>
+                        
+                        <ul class="order-final-summary mt-3">
+                             <li class="grand-total">
+                                <span class="label">Grand Total</span>
+                                <span class="value">₹{{ order.total_price|stringformat:"d" }}</span>
+                            </li>
+                            <li>
+                                <span class="label">Payment Mode</span>
+                                <span class="value">{{ order.payment_mode }}</span>
+                            </li>
+                             <li>
+                                <span class="label">Order Status</span>
+                                <span class="value">
+                                    {% if order.status == 'Completed' %}
+                                        <span class="status-badge status-completed">{{ order.status }}</span>
+                                    {% elif order.status == 'Pending' %}
+                                            <span class="status-badge status-pending">{{ order.status }}</span>
+                                    {% elif order.status == 'Out of Shipping' %}
+                                            <span class="status-badge status-out-of-shipping">{{ order.status }}</span>
+                                    {% else %}
+                                            <span class="status-badge status-cancelled">{{ order.status }}</span>
+                                    {% endif %}
+                                </span>
+                            </li>
+                             <li>
+                                <span class="label">Tracking Number</span>
+                                <span class="value">{{ order.tracking_no }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

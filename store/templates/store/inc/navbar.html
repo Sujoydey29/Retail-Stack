@@ -1,0 +1,72 @@
+
+{% load static %}
+<header class="sticky-top">
+    <nav class="navbar navbar-expand-lg py-3">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'images/logo (1).jpg'%}" alt="MSG Store Logo" />
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars" style="color: var(--text-color);"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                
+                <div class="mx-auto" style="width: 50%;">
+                    <form action="{% url 'searchproduct' %}" method="POST" class="w-100">
+                        {% csrf_token %}
+                        <div class="input-group search-bar">
+                            <input type="search" required class="form-control" name="productsearch" id="searchproducts" placeholder="Search for products, brands and more">
+                            <button type="submit" class="input-group-text"> <i class="fa fa-search"> </i> </button>
+                        </div>
+                    </form>
+                </div>
+
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active-nav-link{% endif %}" aria-current="page" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'collections' %}active-nav-link{% endif %}" href="{% url 'collections' %}">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'cart' %}active-nav-link{% endif %}" href="{% url 'cart' %}"><i class="fa fa-shopping-cart me-1"></i>Cart</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'wishlist' %}active-nav-link{% endif %}" href="{% url 'wishlist' %}"><i class="fa fa-heart me-1"></i>Wishlist</a>
+                    </li>
+
+                    {% if request.user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-user me-1"></i> {{ request.user.first_name|default:request.user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'myorders' %}"><i class="fa-solid fa-box-archive me-2"></i>My Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'loginpage' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-custom px-3 py-1" href="{% url 'register' %}">Register</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item ms-3">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox" />
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

@@ -1,0 +1,91 @@
+{% extends 'store/layouts/main.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Internal Styles for Product Listing Page -->
+<style>
+.products-page-container {
+    background-color: #f0f2f5; /* Light grey background */
+}
+.breadcrumb-item a {
+    color: var(--secondary-color);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+.breadcrumb-item a:hover {
+    color: var(--primary-color);
+}
+.breadcrumb-item.active {
+    color: var(--text-color);
+    font-weight: 500;
+}
+.product-category-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--heading-color);
+}
+.product-category-description {
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+    max-width: 700px;
+}
+</style>
+
+<div class="products-page-container py-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 mb-2">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'collections' %}">Collections</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+            </ol>
+        </nav>
+        <h1 class="product-category-title">{{ category.name }}</h1>
+        {% if category.description %}
+            <p class="product-category-description">{{ category.description }}</p>
+        {% endif %}
+        <hr class="my-4">
+
+        <div class="row">
+            {% for item in products %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="product-card d-flex flex-column h-100">
+                        <div class="product-image-container">
+                            <a href="{% url 'productview' item.category.slug item.slug %}">
+                                {% if item.tag %}
+                                    <div class="product-viewtag">{{ item.tag }}</div>
+                                {% endif %}
+                                {% if item.product_image %}
+                                    <img src="{{ item.product_image.url }}" alt="{{ item.name }}" class="w-100" />
+                                {% else %}
+                                    <img src="{% static 'images/placeholder.png' %}" alt="No image available" class="w-100" />
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="product-name flex-grow-1">{{ item.name }}</h5>
+                            <div class="price-wrapper mt-auto pt-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="selling-price">₹{{ item.selling_price|stringformat:"d" }}</span>
+                                    <span class="original-price text-decoration-line-through">₹{{ item.original_price|stringformat:"d" }}</span>
+                                </div>
+                                <a href="{% url 'productview' item.category.slug item.slug %}" class="btn btn-custom w-100">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col">
+                    <div class="card card-body text-center py-5" style="background-color: var(--card-bg);">
+                        <h4 style="color: var(--heading-color);">Nothing Here Yet</h4>
+                        <p style="color: var(--secondary-color);">There are no products in this collection. Please check back later!</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

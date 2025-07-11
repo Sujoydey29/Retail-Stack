@@ -1,0 +1,358 @@
+{% extends 'store/layouts/main.html' %}
+
+{% block title %} Checkout {% endblock title %}
+
+{% block content %}
+
+<!-- Internal Styles & Scripts for Checkout Page -->
+<style>
+.checkout-page-container {
+    background-color: #f0f2f5; /* Light grey background from screenshot */
+}
+.page-header {
+    background-color: var(--card-bg);
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.page-header .breadcrumb-item a {
+    color: var(--secondary-color); font-weight: 500; text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+.page-header .breadcrumb-item a:hover { color: var(--primary-color); }
+.page-header .breadcrumb-item.active { color: var(--text-color); font-weight: 600; }
+.page-header h1 { font-size: 2.2rem; font-weight: 700; color: var(--heading-color); }
+
+.form-card, .summary-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+}
+.form-card h5, .summary-card h5 {
+    font-weight: 600;
+    font-size: 1.25rem;
+    padding-bottom: 1rem;
+    margin-bottom: 0;
+    border-bottom: none;
+}
+.form-card .form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.25rem;
+}
+.form-card .form-control {
+    background-color: var(--bg-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+}
+.form-card .form-control:focus {
+    background-color: var(--card-bg);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+.summary-card {
+    position: sticky;
+    top: 100px;
+}
+.summary-card hr {
+    border-top: 1px solid var(--border-color);
+    opacity: 0.25;
+}
+
+.summary-product-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+}
+.summary-product-item img {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    margin-right: 15px;
+}
+.summary-product-info {
+    flex-grow: 1;
+}
+.summary-product-info .name {
+    font-weight: 500;
+    line-height: 1.3;
+    margin-bottom: 0.1rem;
+}
+.summary-product-info .qty {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+}
+.summary-product-price {
+    font-weight: 600;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+.summary-line:last-child {
+    margin-bottom: 0;
+}
+.summary-line span:first-child {
+    color: var(--secondary-color);
+}
+.summary-line span:last-child {
+    font-weight: 500;
+    color: var(--text-color);
+}
+.summary-line .text-success {
+    color: #198754 !important;
+    font-weight: 600;
+}
+.summary-line.grand-total {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+.summary-line.grand-total span {
+    font-weight: 700;
+    color: var(--heading-color);
+}
+
+
+/* Payment Method Selection */
+.payment-methods .method {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.payment-methods .method:hover {
+    background-color: var(--bg-color);
+}
+.payment-methods .method.selected {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    background-color: var(--bg-color);
+}
+.payment-methods .form-check-label {
+    font-weight: 600;
+}
+.payment-action-buttons .btn, #paypal-button-container {
+    display: none;
+}
+.payment-action-buttons .btn.active, #paypal-button-container.active {
+    display: block;
+}
+
+#paypal-button-container {
+    margin-top: 0.75rem;
+}
+</style>
+
+<div class="checkout-page-container">
+    <div class="page-header">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 m-0">
+                  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'cart' %}">Cart</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                </ol>
+            </nav>
+            <h1 class="mt-2">Checkout</h1>
+        </div>
+    </div>
+    
+    <div class="py-5">
+        <div class="container">
+            <form action="{% url 'placeorder' %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-7 mb-4 mb-lg-0">
+                        <div class="form-card">
+                            <h5 class="mb-3">Shipping Details</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" required value="{{ request.user.first_name }}" class="form-control" name="fname" placeholder="Enter First name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" required value="{{ request.user.last_name }}" class="form-control" name="lname" placeholder="Enter Last name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" required value="{{ request.user.email }}" class="form-control" name="email" placeholder="Enter Email">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="tel" required value="{{ userprofile.phone }}" class="form-control" name="phone" placeholder="Enter Phone">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Address</label>
+                                    <textarea required class="form-control" rows="3" name="address" placeholder="Enter Full Address">{{ userprofile.address }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">City</label>
+                                    <input type="text" required value="{{ userprofile.city }}" class="form-control" name="city" placeholder="City">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">State</label>
+                                    <input type="text" required value="{{ userprofile.state }}" class="form-control" name="state" placeholder="State">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Country</label>
+                                    <input type="text" required value="{{ userprofile.country }}" class="form-control" name="country" placeholder="Country">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Pin Code</label>
+                                    <input type="text" required value="{{ userprofile.pincode }}" class="form-control" name="pincode" placeholder="Pin Code">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="summary-card">
+                            <h5>Order Summary</h5>
+                            <hr class="mt-3 mb-3">
+                            {% if cartitems %}
+                                <div class="summary-products">
+                                    {% for item in cartitems %}
+                                        <div class="summary-product-item">
+                                            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}">
+                                            <div class="summary-product-info">
+                                                <span class="name">{{ item.product.name }}</span>
+                                                <span class="qty">Qty: {{ item.product_qty }}</span>
+                                            </div>
+                                            <span class="summary-product-price">₹{{ item.total_price|stringformat:"d" }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <hr class="my-3">
+                                <div class="summary-totals">
+                                    <div class="summary-line">
+                                        <span>Subtotal</span>
+                                        <span>₹{{ total_price|stringformat:"d" }}</span>
+                                    </div>
+                                    <div class="summary-line">
+                                        <span>Shipping</span>
+                                        <span class="text-success">FREE</span>
+                                    </div>
+                                </div>
+                                <hr class="my-3">
+                                <div class="summary-line grand-total">
+                                    <span>Grand Total</span>
+                                    <span>₹{{ total_price|stringformat:"d" }}</span>
+                                </div>
+                                <hr class="my-3">
+                                <div class="payment-methods">
+                                    <h6 class="mb-3 fw-bold">Payment Method</h6>
+                                    
+                                    <input type="hidden" name="payment_mode" id="payment_mode_input" value="COD">
+
+                                    <div class="method" data-value="COD">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="payment_method_radio" id="cod_radio" value="COD" checked>
+                                            <label class="form-check-label" for="cod_radio">Cash on Delivery</label>
+                                        </div>
+                                    </div>
+                                    <div class="method" data-value="Razorpay">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="payment_method_radio" id="razorpay_radio" value="Razorpay">
+                                            <label class="form-check-label" for="razorpay_radio">Pay with Razorpay</label>
+                                        </div>
+                                    </div>
+                                    <div class="method" data-value="PayPal">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="payment_method_radio" id="paypal_radio" value="PayPal">
+                                            <label class="form-check-label" for="paypal_radio">Pay with PayPal</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="payment-action-buttons mt-4">
+                                        <button type="submit" id="cod_btn" class="btn btn-custom w-100 active">Place Order</button>
+                                        <button type="button" id="razorpay_btn" class="btn btn-custom w-100 payWithRazorpay">Pay with Razorpay</button>
+                                        <div id="paypal-button-container"></div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <p>Your cart is empty.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+    <!-- Payment SDKs -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=AekEG48LGYbuiQQHtdBEMWkM37l9KDRp3Io4hG7dPgIUPJiAvHzNKonKGFu3-NenRmXnpiEXz5ETj4y-&currency=USD"></script>
+    
+    <!-- Custom Checkout Logic -->
+    <script>
+        $(document).ready(function() {
+            // Function to handle payment method selection
+            function updatePaymentMethod() {
+                const selectedValue = $('input[name="payment_method_radio"]:checked').val();
+
+                // Update hidden input for form submission
+                $('#payment_mode_input').val(selectedValue);
+
+                // Highlight selected method
+                $('.payment-methods .method').removeClass('selected');
+                $(`.payment-methods .method[data-value="${selectedValue}"]`).addClass('selected');
+
+                // Show/hide correct button
+                $('.payment-action-buttons .btn, #paypal-button-container').removeClass('active');
+                if (selectedValue === 'COD') {
+                    $('#cod_btn').addClass('active');
+                } else if (selectedValue === 'Razorpay') {
+                    $('#razorpay_btn').addClass('active');
+                } else if (selectedValue === 'PayPal') {
+                    $('#paypal-button-container').addClass('active');
+                }
+            }
+
+            // Event listener for radio buttons and method containers
+            $('input[name="payment_method_radio"]').on('change', updatePaymentMethod);
+            $('.payment-methods .method').on('click', function() {
+                $(this).find('input[type="radio"]').prop('checked', true).trigger('change');
+            });
+            
+            // Initial call to set the state correctly
+            updatePaymentMethod();
+
+            // PayPal Button Rendering
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: '{{ total_price_usd }}' // IMPORTANT: Use a USD converted price
+                            }
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(orderData) {
+                        console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                        // Place your order submission logic here for PayPal
+                        // You need to get the user data from the form and submit it via AJAX
+                        // along with the paypal_order_id: orderData.id
+                        alert('Transaction completed by ' + orderData.payer.name.given_name);
+                    });
+                }
+            }).render('#paypal-button-container');
+
+        });
+    </script>
+{% endblock scripts %}

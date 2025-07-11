@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{# 1) Pull in our custom CSS after the default admin styles #}
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="{% static 'css/custom_admin.css' %}" rel="stylesheet">
+{% endblock extrastyle %}
+
+
+{# 2) Replace the built-in “branding” block with the Stripe‐style header #}
+{% block branding %}
+<nav class="stripe-header">
+  <div class="stripe-left">
+    <a href="{% url 'admin:index' %}" class="stripe-logo">
+      your<span>LOGO</span>
+    </a>
+    <ul class="stripe-nav">
+      <li><a href="#" class="active">Account Overview</a></li>
+      <li><a href="#">Payments</a></li>
+      <li><a href="#">Subscriptions</a></li>
+      <li><a href="#">Customers</a></li>
+    </ul>
+  </div>
+  <div class="stripe-right">
+    <button class="btn small">3 Filters Applied</button>
+    <button class="btn icon"><i class="material-icons">tune</i></button>
+    <button class="btn icon"><i class="material-icons">share</i></button>
+    <div class="avatar">
+      <img src="{% static 'images/user-avatar.png' %}" alt="Me">
+    </div>
+  </div>
+</nav>
+{% endblock branding %}

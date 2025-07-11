@@ -1,0 +1,11 @@
+id,slug,name,image,description,status,trending,meta_title,meta_keywords,meta_description
+1,category-1,Category 1,category_1.jpg,Description for category 1,0,0,Meta Title Category 1,"keyword1, category",Meta description for category 1
+2,category-2,Category 2,category_2.jpg,Description for category 2,0,0,Meta Title Category 2,"keyword2, category",Meta description for category 2
+3,category-3,Category 3,category_3.jpg,Description for category 3,1,0,Meta Title Category 3,"keyword3, category",Meta description for category 3
+4,category-4,Category 4,category_4.jpg,Description for category 4,1,0,Meta Title Category 4,"keyword4, category",Meta description for category 4
+5,category-5,Category 5,category_5.jpg,Description for category 5,0,1,Meta Title Category 5,"keyword5, category",Meta description for category 5
+6,category-6,Category 6,category_6.jpg,Description for category 6,0,0,Meta Title Category 6,"keyword6, category",Meta description for category 6
+7,category-7,Category 7,category_7.jpg,Description for category 7,1,1,Meta Title Category 7,"keyword7, category",Meta description for category 7
+8,category-8,Category 8,category_8.jpg,Description for category 8,0,0,Meta Title Category 8,"keyword8, category",Meta description for category 8
+9,category-9,Category 9,category_9.jpg,Description for category 9,0,1,Meta Title Category 9,"keyword9, category",Meta description for category 9
+10,category-10,Category 10,category_10.jpg,Description for category 10,1,0,Meta Title Category 10,"keyword10, category",Meta description for category 10

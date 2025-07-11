@@ -1,0 +1,429 @@
+{# ecommerce/store/templates/admin/dashboard.html #}
+{% extends "admin/base_site.html" %}
+{% load static humanize %}
+
+{% block title %}Retail Stack | Dashboard{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+
+  <!-- Inter + Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Chart.js & GeoChart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #f4f7fa;
+      --bg-card: #ffffff;
+      --text-primary: #1a202c;
+      --text-secondary: #5a6474;
+      --border-color: #e2e8f0;
+      --primary: #4f46e5;
+      --primary-light: #e0e7ff;
+      --shadow: rgba(0, 0, 0, 0.05);
+      --font-family: 'Inter', sans-serif;
+      --radius: 12px;
+    }
+    body, html {
+      background: var(--bg-main);
+      font-family: var(--font-family);
+      color: var(--text-primary);
+    }
+    #content-main {
+      padding: 0 !important;
+      max-width: none !important;
+    }
+    .dashboard-container {
+      padding: 1.5rem 2rem;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 2rem 0;
+      color: var(--text-primary);
+    }
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    /* KPI Cards - Updated to Flexbox */
+    .kpi-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03), 0 2px 4px -1px rgba(0,0,0,0.02);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      flex: 1 1 200px; /* Use flexbox for responsive layout */
+    }
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.04);
+    }
+    .kpi-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .kpi-icon-wrapper .material-icons {
+      font-size: 24px;
+    }
+    .kpi-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 0.25rem;
+    }
+
+    /* Chart Grid - Updated to Flexbox */
+    .chart-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .chart-container {
+      background: var(--bg-card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03), 0 2px 4px -1px rgba(0,0,0,0.02);
+      flex: 1 1 320px;
+      min-width: 320px;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .chart-header .material-icons {
+      color: var(--text-secondary);
+      cursor: help;
+    }
+
+    /* Sales Breakdown */
+    .sales-breakdown .sales-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .sales-label {
+      font-size: .9rem;
+      color: var(--text-secondary);
+    }
+    .sales-value {
+      font-size: .9rem;
+      font-weight: 600;
+      justify-self: end;
+    }
+    .sales-track {
+      height: 8px;
+      background: #eef2ff;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .sales-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+    }
+    
+    /* Stat Grid - Updated to Flexbox */
+    .stat-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      text-align: center;
+      flex: 1 1 150px;
+    }
+    .stat-title {
+      font-size: .75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 0.5rem;
+    }
+
+    /* Chart Sizing */
+    canvas { width:100% !important; height:auto !important; max-height: 280px; }
+    #regions_div { width:100%; height: 280px; }
+
+    /* Modal */
+    .modal {
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center;
+      z-index: 10000;
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      background: var(--bg-card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      width: 90%; max-width: 500px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1rem;
+    }
+    .modal-header h3 { font-size: 1.25rem; font-weight: 600; margin: 0; }
+    .modal-close { cursor: pointer; color: var(--text-secondary); }
+    .order-row {
+      padding: .75rem 0;
+      font-size: .9rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .order-row:last-child { border-bottom: none; }
+  </style>
+{% endblock extrahead %}
+
+{% block content %}
+  <div class="dashboard-container">
+    <h1>{{ index_title }}</h1>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon-wrapper" style="background-color: #e0f2fe;"><span class="material-icons" style="color: #0ea5e9;">shopping_cart</span></div>
+        <div class="kpi-text">
+          <div class="kpi-title">Total Orders</div>
+          <div class="kpi-value">{{ total_orders }}</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-wrapper" style="background-color: #dcfce7;"><span class="material-icons" style="color: #22c55e;">paid</span></div>
+        <div class="kpi-text">
+          <div class="kpi-title">Total Revenue</div>
+          <div class="kpi-value">${{ total_revenue|floatformat:2|intcomma }}</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-wrapper" style="background-color: #eef2ff;"><span class="material-icons" style="color: #6366f1;">trending_up</span></div>
+        <div class="kpi-text">
+          <div class="kpi-title">Total Profit</div>
+          <div class="kpi-value" style="color: {% if total_profit > 0 %}#16a34a{% else %}#dc2626{% endif %};">${{ total_profit|floatformat:2|intcomma }}</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-wrapper" style="background-color: #fefce8;"><span class="material-icons" style="color: #eab308;">group</span></div>
+        <div class="kpi-text">
+          <div class="kpi-title">Total Customers</div>
+          <div class="kpi-value">{{ total_customers }}</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-wrapper" style="background-color: #fee2e2;"><span class="material-icons" style="color: #ef4444;">insights</span></div>
+        <div class="kpi-text">
+          <div class="kpi-title">Avg Order Value</div>
+          <div class="kpi-value">${{ avg_order_value|floatformat:2|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-container">
+        <div class="chart-header">
+          <h2>Top Subscription Prices</h2>
+          <span class="material-icons" title="Breakdown of revenue by subscription type">info_outline</span>
+        </div>
+        <div class="sales-breakdown">
+          <div class="sales-row">
+            <div class="sales-label">Monthly</div>
+            <div class="sales-track"><div class="sales-fill" style="width:{{ monthly_pct }}%;"></div></div>
+            <div class="sales-value">${{ monthly_rev|intcomma }}</div>
+          </div>
+          <div class="sales-row">
+            <div class="sales-label">Annually</div>
+            <div class="sales-track"><div class="sales-fill" style="width:{{ annual_pct }}%;"></div></div>
+            <div class="sales-value">${{ annual_rev|intcomma }}</div>
+          </div>
+          <div class="sales-row">
+            <div class="sales-label">Daily</div>
+            <div class="sales-track"><div class="sales-fill" style="width:{{ daily_pct }}%;"></div></div>
+            <div class="sales-value">${{ daily_rev|intcomma }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <h2>Orders by Status</h2>
+          <span class="material-icons" title="Current status of all orders">legend_toggle</span>
+        </div>
+        <canvas id="statusChart"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <h2>Customers by Country</h2>
+          <span class="material-icons" title="Geographic distribution of customers">public</span>
+        </div>
+        <div id="regions_div"></div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-title">Payments</div><div class="stat-value">{{ payments_count }}</div></div>
+      <div class="stat-card"><div class="stat-title">Payment Amount</div><div class="stat-value">${{ payments_amount|intcomma }}</div></div>
+      <div class="stat-card"><div class="stat-title">Avg Payment</div><div class="stat-value">${{ avg_payment|floatformat:2 }}</div></div>
+      <div class="stat-card"><div class="stat-title">Refunds</div><div class="stat-value">{{ refund_count }}</div></div>
+      <div class="stat-card"><div class="stat-title">Refund Amount</div><div class="stat-value">${{ refund_amount|intcomma }}</div></div>
+      <div class="stat-card"><div class="stat-title">Avg Refund</div><div class="stat-value">${{ avg_refund|floatformat:2 }}</div></div>
+    </div>
+  </div>
+
+  <div id="orderModal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalCountry"></h3>
+        <span class="modal-close material-icons" onclick="closeModal()">close</span>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Use a small timeout to ensure this script runs after any theme scripts
+      // that might overwrite the title. This fixes the "Django administration" issue.
+      setTimeout(() => {
+        // For Jazzmin theme, the brand text is in an anchor in the main-header
+        const brandElement = document.querySelector('a.navbar-brand');
+        if (brandElement) {
+          brandElement.textContent = 'Retail Stack Admin';
+          brandElement.style.cssText = 'font-size: 1.25rem; font-weight: 600;';
+        }
+        
+        // Fallback for default Django admin
+        const headerBranding = document.querySelector('#header #branding h1');
+        if (headerBranding) {
+          headerBranding.textContent = 'Retail Stack Admin';
+        }
+      }, 50);
+
+      // Doughnut Chart
+      new Chart(document.getElementById('statusChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: {{ status_labels|safe }},
+          datasets: [{
+            data: {{ status_data|safe }},
+            backgroundColor: ['#4f46e5', '#f97316', '#10b981', '#ef4444', '#6b7280'],
+            borderColor: 'var(--bg-card)',
+            borderWidth: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: 'var(--text-secondary)',
+                font: { family: 'var(--font-family)' },
+                usePointStyle: true,
+                boxWidth: 8
+              }
+            }
+          }
+        }
+      });
+
+      // GeoChart
+      google.charts.load('current', { packages:['geochart'] });
+      google.charts.setOnLoadCallback(() => {
+        const data = google.visualization.arrayToDataTable([
+          ['Country', 'Count'],
+          ...{{ country_data|safe }}
+        ]);
+        const opts = {
+          backgroundColor: 'transparent',
+          datalessRegionColor: '#f1f5f9',
+          colorAxis: { colors: ['#c7d2fe', '#4f46e5'] },
+          legend: 'none'
+        };
+        const chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+        
+        google.visualization.events.addListener(chart, 'select', () => {
+          const sel = chart.getSelection();
+          if (!sel.length) return;
+          const country = data.getValue(sel[0].row, 0);
+          showModal(country);
+        });
+        
+        chart.draw(data, opts);
+      });
+
+      // Modal
+      const countryOrders = {{ country_orders_json|safe }};
+      const orderModal = document.getElementById('orderModal');
+      
+      function showModal(country) {
+        const orders = countryOrders[country] || [];
+        document.getElementById('modalCountry').innerText = country;
+        const body = document.getElementById('modalBody');
+        body.innerHTML = orders.length 
+          ? orders.map(o => `
+              <div class="order-row">
+                <strong>${o.city}, ${o.state}</strong>
+                <div style="display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;">
+                  <span>${new Date(o.timestamp).toLocaleString()}</span>
+                  <span style="font-weight: 500;">$${o.amount.toFixed(2)}</span>
+                </div>
+              </div>
+            `).join('')
+          : '<p>No orders to display for this country.</p>';
+        orderModal.style.display = 'flex';
+      }
+
+      function closeModal() {
+        orderModal.style.display = 'none';
+      }
+    });
+  </script>
+{% endblock content %}

@@ -1,0 +1,413 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %} MSG Store {% endblock title %}
+    </title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Existing CSS -->
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/checkout.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/owl.carousel.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/owl.theme.default.min.css' %}" rel="stylesheet" /> 
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"> 
+
+    <!-- New Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --heading-color: #343a40;
+            --card-bg: #ffffff;
+            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --border-color: #dee2e6;
+            --navbar-bg: rgba(255, 255, 255, 0.9);
+            --navbar-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            --footer-bg: #343a40;
+            --footer-text: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #589bff;
+            --secondary-color: #8c96a0;
+            --bg-color: #121212;
+            --text-color: #e1e1e1;
+            --heading-color: #ffffff;
+            --card-bg: #1e1e1e;
+            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            --border-color: #333;
+            --navbar-bg: rgba(25, 25, 25, 0.9);
+            --navbar-shadow: 0 2px 4px rgba(255,255,255,0.05);
+            --footer-bg: #1e1e1e;
+            --footer-text: #e1e1e1;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Navbar */
+        header.sticky-top .navbar {
+            background-color: var(--navbar-bg);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--navbar-shadow);
+            transition: background-color 0.3s;
+        }
+        .navbar .navbar-brand img {
+            max-height: 40px;
+        }
+        .navbar .nav-link {
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.2s;
+            margin: 0 0.5rem;
+        }
+        .navbar .nav-link:hover,
+        .navbar .active-nav-link {
+            color: var(--primary-color) !important;
+        }
+        .navbar .search-bar .form-control {
+            border-radius: 20px 0 0 20px;
+            border-right: none;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+         .navbar .search-bar .input-group-text {
+            border-radius: 0 20px 20px 0;
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Slider */
+        .carousel-item img {
+            max-height: 550px;
+            object-fit: cover;
+            filter: brightness(0.7);
+        }
+        .carousel-caption {
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 1rem;
+        }
+        .carousel-caption h1 {
+            font-weight: 700;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-weight: 700;
+            color: var(--heading-color);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        /* Product Card */
+        .product-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: var(--card-shadow);
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        .product-card .product-image-container {
+            overflow: hidden;
+            position: relative;
+        }
+        .product-card .product-image-container img {
+            transition: transform 0.4s;
+        }
+        .product-card:hover .product-image-container img {
+            transform: scale(1.05);
+        }
+        .product-card .card-body {
+            padding: 1rem;
+        }
+        .product-card .product-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--heading-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .product-card .selling-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .product-card .original-price {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-left: 0.5rem;
+        }
+        .product-viewtag {
+            background-color: #dc3545;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            z-index: 10;
+        }
+        
+        /* Buttons */
+        .btn-custom {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background-color: var(--card-bg);
+            padding: 4rem 0;
+            border-radius: 15px;
+        }
+
+        /* Owl Carousel */
+        .owl-nav button.owl-prev, .owl-nav button.owl-next {
+            font-size: 2rem !important;
+            width: 40px;
+            height: 40px;
+            background: var(--card-bg) !important;
+            color: var(--primary-color) !important;
+            border-radius: 50% !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Dark Mode Toggle */
+        .theme-switch-wrapper { display: flex; align-items: center; }
+        .theme-switch { display: inline-block; height: 24px; position: relative; width: 50px; }
+        .theme-switch input { display: none; }
+        .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; }
+        .slider:before { background-color: #fff; bottom: 2px; content: ""; height: 20px; left: 2px; position: absolute; transition: .4s; width: 20px; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+
+        /* Whatsapp */
+        .whatsapp-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        /* --- New Auth Page Styles --- */
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 2rem 0;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--card-bg);
+            padding: 2rem 2.5rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        .auth-card .form-control {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+        }
+        .auth-card .form-control:focus {
+            background-color: var(--card-bg);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+        }
+        .auth-card .form-label {
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+        .auth-card .form-error {
+            font-size: 0.85rem;
+            color: #dc3545;
+            margin-top: .25rem;
+            display: block;
+        }
+        .auth-card .is-invalid {
+            border-color: #dc3545;
+        }
+
+        /* Login SVG Character */
+        .svg-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1.5em;
+            border-radius: 50%;
+            background: none;
+            border: solid 2.5px var(--secondary-color);
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .svg-container div {
+            position: relative;
+            width: 100%;
+            height: 0;
+            overflow: hidden;
+            padding-bottom: 100%;
+        }
+        .svg-container .mySVG {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* --- FIX: Search Autocomplete Styles --- */
+        .ui-autocomplete {
+            position: absolute;
+            z-index: 9999 !important; /* Ensure it's on top of everything */
+            cursor: default;
+            padding: 0.5rem 0;
+            margin-top: 5px;
+            list-style: none;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px; /* Use a variable if available or a fixed value */
+            box-shadow: var(--card-shadow);
+            max-height: 250px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .ui-autocomplete .ui-menu-item {
+            padding: 0;
+        }
+        .ui-autocomplete .ui-menu-item-wrapper {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .ui-autocomplete .ui-menu-item-wrapper.ui-state-active {
+            background-color: var(--primary-color);
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'store/inc/navbar.html' %} 
+    
+    <main>
+        {% block content %} {% endblock content %}
+    </main>
+
+    <a href="https://wa.me/+918827440176?text=I'm%20interested%20in%20to%chat" target="_blank" class="whatsapp-chat">
+        <img src="{% static '/images/whatsapp.png' %}" alt="whatsapp " width="60px" />
+    </a>
+    
+    {% comment %} Jquery {% endcomment %}
+    <script src="{% static '/js/jquery-3.6.0.min.js' %}"> </script>
+    
+    {% comment %} Custom JS {% endcomment %}
+    <script src="{% static '/js/custom.js' %}"> </script>
+    <script src="{% static '/js/owl.carousel.min.js' %}"> </script>
+
+    {% comment %} Bootstrap JS {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+    {% comment %} Alertify JS {% endcomment %}
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+    <script>
+        var availableTags = [];
+        $.ajax({
+            method: "GET",
+            url: "/product-list",
+            success: function(response) {
+                startAutocomplete(response);
+            }
+        });
+        function startAutocomplete(availableTags) {
+            $("#searchproducts").autocomplete({
+                source: availableTags
+            });
+        }
+    </script>
+    <script>
+        alertify.set('notifier', 'position', 'top-right');
+        {% for msg in messages %}
+            alertify.success('{{ msg }}'); 
+        {% endfor %}
+    </script>
+
+    {% comment %} Custom Page Scripts {% endcomment %}
+    {% block scripts %} {% endblock scripts %} 
+    
+    {% comment %} Razorpay Checkout {% endcomment %}
+    <script src="{% static '/js/checkout.js' %}"></script>
+    
+    {% comment %} Login JS is now inline in login.html {% endcomment %}
+    
+    {% comment %} Enable Dark mode {% endcomment %}
+    <script src="{% static '/js/navbar.js' %}"></script>
+</body>
+
+</html>

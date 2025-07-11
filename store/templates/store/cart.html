@@ -1,0 +1,284 @@
+{% extends 'store/layouts/main.html' %}
+
+{% block title %} My Cart {% endblock title %}
+
+{% block content %}
+
+<!-- Internal Styles for Cart Page -->
+<style>
+.cart-page-container {
+    background-color: #f0f2f5; /* Light grey background */
+}
+.cart-header {
+    background-color: var(--card-bg);
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.cart-header .breadcrumb-item a {
+    color: var(--secondary-color);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+.cart-header .breadcrumb-item a:hover {
+    color: var(--primary-color);
+}
+.cart-header .breadcrumb-item.active {
+    color: var(--text-color);
+    font-weight: 500;
+}
+.cart-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--heading-color);
+}
+
+/* Cart Table Styling */
+.cart-table {
+    background-color: var(--card-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+}
+.cart-table-header {
+    color: var(--secondary-color);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+}
+.product_data {
+    border-bottom: 1px solid var(--border-color);
+}
+.product_data:last-child {
+    border-bottom: none;
+}
+.cart-product-info {
+    display: flex;
+    align-items: center;
+}
+.cart-product-info img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 15px;
+}
+.cart-product-info h6 {
+    margin: 0;
+    font-weight: 600;
+    color: var(--heading-color);
+}
+.cart-product-price {
+    font-weight: 600;
+}
+.delete-cart-item {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+.delete-cart-item:hover {
+    color: #dc3545;
+}
+
+/* Order Summary Card */
+.order-summary-card {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    position: sticky;
+    top: 100px;
+}
+.order-summary-card h4 {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+.summary-row.total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--heading-color);
+}
+.btn-checkout {
+    font-weight: 600;
+    padding: 0.8rem 1rem;
+}
+
+/* Empty Cart State */
+.empty-cart-container {
+    text-align: center;
+    padding: 5rem 0;
+}
+.empty-cart-container .icon {
+    font-size: 6rem;
+    color: var(--primary-color);
+    opacity: 0.5;
+}
+.empty-cart-container h3 {
+    font-weight: 600;
+    margin-top: 1.5rem;
+}
+.empty-cart-container p {
+    color: var(--secondary-color);
+}
+</style>
+
+<div class="cart-page-container">
+    <div class="cart-header">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 m-0">
+                  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">My Cart</li>
+                </ol>
+            </nav>
+            <h1 class="cart-title mt-2">Shopping Cart</h1>
+        </div>
+    </div>
+
+    <div class="py-5">
+        <div class="container">
+            {% if cart %}
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="cart-table">
+                            <!-- Table Header -->
+                            <div class="d-none d-md-flex row cart-table-header pb-2 mb-3">
+                                <div class="col-md-5">Product</div>
+                                <div class="col-md-2 text-center">Price</div>
+                                <div class="col-md-3 text-center">Quantity</div>
+                                <div class="col-md-2 text-end">Total</div>
+                            </div>
+
+                            <!-- Cart Items -->
+                            <div class="cartdata">
+                                {% for item in cart %}
+                                <div class="row product_data align-items-center py-3">
+                                    <div class="col-md-5">
+                                        <div class="cart-product-info">
+                                            <img src="{{ item.product.product_image.url }}" alt="{{ item.product.name }}">
+                                            <div>
+                                                <h6>{{ item.product.name }}</h6>
+                                                <button class="btn p-0 delete-cart-item mt-1"><small>Remove</small></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-md-center my-2 my-md-0">
+                                        <span class="d-md-none fw-bold">Price: </span>
+                                        <span class="cart-product-price">₹{{ item.product.selling_price|stringformat:"d" }}</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mx-auto mx-md-0" style="width: 130px;">
+                                            <input type="hidden" class="prod_id" value="{{ item.product_id }}">
+                                            {% csrf_token %}
+                                            {% if item.product.quantity >= item.product_qty %}
+                                                <div class="input-group">
+                                                    <button class="btn btn-outline-secondary changeQuantity decrement-btn" type="button">-</button>
+                                                    <input type="text" name="quantity" class="form-control qty-input text-center" value="{{ item.product_qty }}" readonly>
+                                                    <button class="btn btn-outline-secondary changeQuantity increment-btn" type="button">+</button>
+                                                </div>
+                                            {% else %}
+                                                <p class="text-danger mb-0"><small>Out of Stock</small></p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-md-end my-2 my-md-0">
+                                        <span class="d-md-none fw-bold">Total: </span>
+                                        <span class="item-total-price fw-bold">₹0</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 mt-4 mt-lg-0">
+                        <div class="order-summary-card">
+                            <h4>Order Summary</h4>
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span id="cart-subtotal">₹0</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Shipping</span>
+                                <span>Free</span>
+                            </div>
+                            <hr>
+                            <div class="summary-row total">
+                                <span>Total</span>
+                                <span id="cart-total">₹0</span>
+                            </div>
+                            <a href="{% url 'checkout' %}" class="btn btn-custom btn-checkout w-100 mt-3">Proceed to Checkout</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-cart-container">
+                    <i class="fa-solid fa-cart-shopping icon"></i>
+                    <h3>Your Cart is Empty</h3>
+                    <p>Looks like you haven't added anything to your cart yet.</p>
+                    <a href="{% url 'collections' %}" class="btn btn-custom btn-lg mt-3">Continue Shopping</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+
+        function updateCartSummary() {
+            let subtotal = 0;
+            
+            // Loop through each product row
+            $('.product_data').each(function () {
+                const productRow = $(this);
+                const price_str = productRow.find('.cart-product-price').text().replace('₹', '').trim();
+                const price = parseFloat(price_str);
+                const quantity = parseInt(productRow.find('.qty-input').val());
+                
+                if (!isNaN(price) && !isNaN(quantity)) {
+                    const itemTotal = price * quantity;
+                    // Update individual item total
+                    productRow.find('.item-total-price').text('₹' + itemTotal.toFixed(0));
+                    subtotal += itemTotal;
+                }
+            });
+
+            // Update the order summary card
+            $('#cart-subtotal').text('₹' + subtotal.toFixed(0));
+            $('#cart-total').text('₹' + subtotal.toFixed(0));
+        }
+
+        // Initial calculation on page load
+        updateCartSummary();
+
+        // Re-calculate when quantity changes
+        // Use custom.js for AJAX, but update UI instantly
+        $('.changeQuantity').on('click', function () {
+            // A brief delay to allow the value to update before recalculating
+            setTimeout(updateCartSummary, 100);
+        });
+        
+        // Listen for item deletion to update summary
+        $(document).on('click', '.delete-cart-item', function () {
+            // A brief delay to allow the row to be removed by custom.js
+            setTimeout(updateCartSummary, 500); 
+        });
+
+    });
+</script>
+{% endblock scripts %}

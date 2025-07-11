@@ -1,0 +1,172 @@
+{% extends 'store/layouts/main.html' %}
+
+{% block title %} My Orders {% endblock title %}
+
+{% block content %}
+
+<!-- Internal Styles for My Orders Page -->
+<style>
+.orders-page-container {
+    background-color: #f0f2f5; /* Light grey background */
+}
+.page-header {
+    background-color: var(--card-bg);
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.page-header .breadcrumb-item a {
+    color: var(--secondary-color);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+.page-header .breadcrumb-item a:hover {
+    color: var(--primary-color);
+}
+.page-header .breadcrumb-item.active {
+    color: var(--text-color);
+    font-weight: 500;
+}
+.page-header .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--heading-color);
+}
+
+.orders-table-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 0;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+.table-orders {
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+.table-orders thead th {
+    background-color: var(--bg-color);
+    border-bottom: 2px solid var(--border-color);
+    color: var(--secondary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.table-orders tbody tr:hover {
+    background-color: var(--bg-color);
+}
+.table-orders td {
+    padding: 1rem 1.25rem;
+}
+.table-orders .tracking-number {
+    font-family: monospace;
+    font-weight: 500;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.4em 0.8em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 50rem; /* pill shape */
+    color: #fff;
+}
+.status-badge.status-completed { background-color: #198754; }
+.status-badge.status-pending { background-color: #ffc107; color: #000; }
+.status-badge.status-out-of-shipping { background-color: #0dcaf0; color: #000; }
+.status-badge.status-cancelled { background-color: #dc3545; }
+
+/* Empty Orders State */
+.empty-orders-container {
+    text-align: center;
+    padding: 5rem 0;
+}
+.empty-orders-container .icon {
+    font-size: 6rem;
+    color: var(--primary-color);
+    opacity: 0.5;
+}
+.empty-orders-container h3 {
+    font-weight: 600;
+    margin-top: 1.5rem;
+    color: var(--heading-color);
+}
+.empty-orders-container p {
+    color: var(--secondary-color);
+}
+</style>
+
+<div class="orders-page-container">
+    <div class="page-header">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 m-0">
+                  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+                </ol>
+            </nav>
+            <h1 class="page-title mt-2">My Orders</h1>
+        </div>
+    </div>
+    
+    <div class="py-5">
+        <div class="container">
+            {% if orders %}
+                <div class="orders-table-card">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-orders">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Order Date</th>
+                                    <th scope="col">Tracking Number</th>
+                                    <th scope="col">Total Price</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col" class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in orders %}
+                                    <tr>
+                                        <td>{{ item.created_at|date:"F j, Y, P" }}</td>
+                                        <td class="tracking-number">{{ item.tracking_no }}</td>
+                                        <td>₹{{ item.total_price|stringformat:"d" }}</td>
+                                        <td>
+                                            {% if item.status == 'Completed' %}
+                                                <span class="status-badge status-completed">{{ item.status }}</span>
+                                            {% elif item.status == 'Pending' %}
+                                                 <span class="status-badge status-pending">{{ item.status }}</span>
+                                            {% elif item.status == 'Out of Shipping' %}
+                                                 <span class="status-badge status-out-of-shipping">{{ item.status }}</span>
+                                            {% else %}
+                                                 <span class="status-badge status-cancelled">{{ item.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{% url 'orderview' item.tracking_no %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                 <div class="empty-orders-container">
+                    <i class="fa-solid fa-box-open icon"></i>
+                    <h3>No Orders Yet</h3>
+                    <p>You haven't placed any orders with us. Let's change that!</p>
+                    <a href="{% url 'collections' %}" class="btn btn-custom btn-lg mt-3">Start Shopping</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
